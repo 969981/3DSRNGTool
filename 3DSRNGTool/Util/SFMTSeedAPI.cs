@@ -8,9 +8,10 @@ namespace Pk3DSRNGTool
 {
     public static class SFMTSeedAPI
     {
-        public static List<Result> request(string needle, bool IsID, bool IsUltra)
+        public static List<Result> request(string needle, bool IsID, bool IsUltra, bool IsFuzzy = false)
         {
-            var url = $"https://rng-api.odanado.com{(IsUltra ? "/usm" : "/sm")}/sfmt/seed{(IsID ? "/id" : string.Empty)}?needle={needle}";
+            var host = "http://localhost:3000";
+            var url = $"{host}{(IsUltra ? "/usm" : "/sm")}/sfmt/seed{(IsID ? "/id" : string.Empty)}?needle={needle}{(IsFuzzy ? "&fuzzy=true" : string.Empty)}";
 
             using var httpClient = new HttpClient();
             var response = httpClient.GetAsync(url).Result;

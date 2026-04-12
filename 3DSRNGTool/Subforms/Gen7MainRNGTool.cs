@@ -112,7 +112,7 @@ namespace Pk3DSRNGTool
             try
             {
                 SeedResults.Text = WAIT_STR[language];
-                var results = SFMTSeedAPI.request(Clock_List.Text, RB_ID.Checked, IsUltra);
+                var results = SFMTSeedAPI.request(Clock_List.Text, RB_ID.Checked, IsUltra, fuzzySearch.Checked);
                 if (!results?.Any() ?? true)
                     text = NORESULT_STR[language];
                 else
