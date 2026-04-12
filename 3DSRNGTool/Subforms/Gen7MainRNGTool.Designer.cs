@@ -31,6 +31,7 @@
             this.RB_SaveScreen = new System.Windows.Forms.RadioButton();
             this.InputBox = new System.Windows.Forms.GroupBox();
             this.Offset = new System.Windows.Forms.NumericUpDown();
+            this.fuzzySearch = new System.Windows.Forms.CheckBox();
             this.L_Gameversion = new System.Windows.Forms.Label();
             this.Startup = new System.Windows.Forms.CheckBox();
             this.button16 = new System.Windows.Forms.Button();
@@ -103,6 +104,7 @@
             // InputBox
             // 
             this.InputBox.Controls.Add(this.Offset);
+            this.InputBox.Controls.Add(this.fuzzySearch);
             this.InputBox.Controls.Add(this.L_Gameversion);
             this.InputBox.Controls.Add(this.Startup);
             this.InputBox.Controls.Add(this.button16);
@@ -152,6 +154,16 @@
             0,
             0,
             0});
+            //
+            // fuzzySearch
+            //
+            this.fuzzySearch.AutoSize = true;
+            this.fuzzySearch.Location = new System.Drawing.Point(715, 100);
+            this.fuzzySearch.Name = "fuzzySearch";
+            this.fuzzySearch.Size = new System.Drawing.Size(92, 19);
+            this.fuzzySearch.TabIndex = 108;
+            this.fuzzySearch.Text = "Fuzzy search";
+            this.fuzzySearch.UseVisualStyleBackColor = true;
             // 
             // L_Gameversion
             // 
@@ -765,5 +777,7 @@
         private System.Windows.Forms.NumericUpDown Offset;
         private System.Windows.Forms.CheckBox Raining;
         private System.Windows.Forms.CheckBox Fidget;
+        private System.Windows.Forms.CheckBox fuzzySearch;
+
     }
 }
