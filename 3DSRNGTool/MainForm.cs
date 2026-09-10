@@ -152,24 +152,47 @@ namespace Pk3DSRNGTool
             ntrhelper?.B_Disconnect_Click(null, null);
         }
 
+        private Point ScaleDesignLocation(int x, int y)
+        {
+            const float designWidth = 6F;
+            const float designHeight = 13F;
+            var current = CurrentAutoScaleDimensions;
+            return new Point(
+                (int)Math.Round(x * current.Width / designWidth),
+                (int)Math.Round(y * current.Height / designHeight));
+        }
+
         private void SetLocations()
         {
-            L_HA.Location = new Point(200, 192);
-            HA_MainSlot.Location = new Point(230, 190);
+            L_HA.Location = ScaleDesignLocation(200, 192);
+            HA_MainSlot.Location = ScaleDesignLocation(230, 190);
 
-            CB_HAUnlocked.Location = new Point(17, 158);
-            TriggerMethod.Location = new Point(225, 192);
-            L_TriggerMethod.Location = new Point(164, 196);
-            Bubbling.Location = new Point(194, 196);
-            CB_3rdSlotUnlocked.Location = new Point(167, 196);
-            L_SOSRNGIndex.Location = new Point(303, 157);
-            Raining.Location = new Point(330, 158);
+            CB_HAUnlocked.Location = ScaleDesignLocation(17, 158);
+            TriggerMethod.Location = ScaleDesignLocation(225, 192);
+            L_TriggerMethod.Location = ScaleDesignLocation(164, 196);
+            Bubbling.Location = ScaleDesignLocation(194, 196);
+            CB_3rdSlotUnlocked.Location = ScaleDesignLocation(167, 196);
+            L_SOSRNGIndex.Location = ScaleDesignLocation(303, 157);
+            Raining.Location = ScaleDesignLocation(330, 158);
 
-            CB_ForcedShiny.Location = new Point(30, 130);
-            CB_NavHA.Location = new Point(180, 130);
-            CB_NavUnown.Location = new Point(300, 130);
-            L_Potential.Location = new Point(175, 195);
-            Potential.Location = new Point(245, 192);
+            CB_ForcedShiny.Location = ScaleDesignLocation(30, 130);
+            CB_NavHA.Location = ScaleDesignLocation(180, 130);
+            CB_NavUnown.Location = ScaleDesignLocation(300, 130);
+            L_Potential.Location = ScaleDesignLocation(175, 195);
+            Potential.Location = ScaleDesignLocation(245, 192);
+        }
+
+        private void AttachSharedControls(Control parent)
+        {
+            parent.Controls.Add(EnctrPanel);
+            parent.Controls.Add(Raining);
+            parent.Controls.Add(B_OpenTool);
+            parent.Controls.Add(AssumeSynced);
+            Raining.Visible = Gen7 && !gen7sos;
+            Raining.AutoSize = true;
+            Raining.Size = Raining.GetPreferredSize(Size.Empty);
+            Raining.BringToFront();
+            SetLocations();
         }
 
         private void RefreshProfile()
@@ -356,6 +379,14 @@ namespace Pk3DSRNGTool
 
             for (int i = 0; i < Gameversion.Items.Count; i++)
                 Gameversion.Items[i] = GAMEVERSION_STR[lindex, i];
+
+            int shinyFilterIndex = ShinyFilter.SelectedIndex;
+            ShinyFilter.Items.Clear();
+            ShinyFilter.Items.AddRange(Enumerable.Range(0, SHINYFILTER_STR.GetLength(1))
+                .Select(i => SHINYFILTER_STR[lindex, i]).ToArray());
+            ShinyFilter.SelectedIndex = shinyFilterIndex >= 0 && shinyFilterIndex < SHINYFILTER_STR.GetLength(1)
+                ? shinyFilterIndex
+                : (int)ShinyFilterMode.NoShiny;
 
             IVInputer.Translate(IVJUDGE_STR[lindex], STATS_STR);
             Frame.Parents[1] = M_ditto.Text;
@@ -570,10 +601,6 @@ namespace Pk3DSRNGTool
             Isforcedshiny = false;
             ShinyLocked.Text = SHINY_STR[Math.Max(lindex, 0), 0];
         }
-        private void ShinyOnly_CheckedChanged(object sender, EventArgs e)
-        {
-            SquareShinyOnly.Visible = ShinyOnly.Checked;
-        }
         private void Reset_Click(object sender, EventArgs e)
         {
             PerfectIVs.Value = Method == 0 && Fix3v.Checked ? 3 : 0;
@@ -590,8 +617,9 @@ namespace Pk3DSRNGTool
 
             IVInputer.Reset();
 
-            BlinkFOnly.Checked = SafeFOnly.Checked = SpecialOnly.Checked =
-            ShinyOnly.Checked = IgnoreFilters.Checked = false;
+            BlinkFOnly.Checked = SafeFOnly.Checked = SpecialOnly.Checked = false;
+            ShinyFilter.SelectedIndex = (int)ShinyFilterMode.NoShiny;
+            IgnoreFilters.Checked = false;
         }
 
         private void SetAsStarting_Click(object sender, EventArgs e)
@@ -674,8 +702,15 @@ namespace Pk3DSRNGTool
                                         if (hplist.Contains(hpstr[i]))
                                             HiddenPower.CheckBoxItems[i].Checked = true;
                                     break;
+                                case "ShinyFilter":
+                                    if (Enum.TryParse(value, true, out ShinyFilterMode mode) &&
+                                        Enum.IsDefined(typeof(ShinyFilterMode), mode))
+                                        ShinyFilter.SelectedIndex = (int)mode;
+                                    break;
                                 case "ShinyOnly":
-                                    ShinyOnly.Checked = value == "T" || value == "True";
+                                    ShinyFilter.SelectedIndex = value == "T" || value == "True"
+                                        ? (int)ShinyFilterMode.StarOrSquare
+                                        : (int)ShinyFilterMode.NoShiny;
                                     break;
                                 case "Ability":
                                     tmp = Convert.ToInt32(value);
@@ -830,13 +865,12 @@ namespace Pk3DSRNGTool
             switch (Method)
             {
                 case 0:
-                    Sta_Setting.Controls.Add(EnctrPanel); Sta_Setting.Controls.Add(Raining);
-                    Sta_Setting.Controls.Add(B_OpenTool); Sta_Setting.Controls.Add(AssumeSynced);
+                    AttachSharedControls(Sta_Setting);
                     return;
                 case 1: NPC.Value = 4; Event_CheckedChanged(null, null); return;
                 case 2:
-                    Wild_Setting.Controls.Add(EnctrPanel); Wild_Setting.Controls.Add(Raining);
-                    Wild_Setting.Controls.Add(B_OpenTool); Wild_Setting.Controls.Add(AssumeSynced); return;
+                    AttachSharedControls(Wild_Setting);
+                    return;
                 case 3: ByIVs.Checked = true; break;
                 case 4: (Gen7 ? Filter_G7TID : Filter_TID).Checked = true; break;
             }
@@ -1326,8 +1360,7 @@ namespace Pk3DSRNGTool
             IVup = IVup,
             BS = ByStats.Checked ? BS : null,
             Stats = ByStats.Checked ? Stats : null,
-            ShinyOnly = ShinyOnly.Checked,
-            SquareShinyOnly = SquareShinyOnly.Checked,
+            ShinyFilter = (ShinyFilterMode)ShinyFilter.SelectedIndex,
             Skip = IgnoreFilters.Checked,
             PerfectIVValue = (byte)Perfect_IV_Value.Value,
             PerfectIVCount = (byte)PerfectIVs.Value,
@@ -1791,7 +1824,7 @@ namespace Pk3DSRNGTool
             Frames[index].Formatted = true;
 
             bool?[] ivsflag = (result as EggResult)?.InheritMaleIV ?? (result as ResultME7)?.InheritMaleIV;
-            const int ivstart = 6;
+            const int ivstart = 7;
             if (ivsflag != null)
             {
                 if (RB_EggShortest.Checked && Frames[index].FrameUsed == EGGACCEPT_STR[lindex, 0])

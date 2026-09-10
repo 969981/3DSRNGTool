@@ -51,6 +51,7 @@ dgv_IDframe=帧
 dgv_item=道具
 dgv_lv=Lv
 dgv_mark=标记
+dgv_shiny=闪光
 dgv_nature=性格
 dgv_PID=PID
 dgv_psv=PSV

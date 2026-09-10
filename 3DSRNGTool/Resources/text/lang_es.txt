@@ -51,6 +51,7 @@ dgv_IDframe=Fotograma
 dgv_item=Objeto
 dgv_lv=Nv
 dgv_mark=Marca
+dgv_shiny=Variocolor
 dgv_nature=Naturaleza
 dgv_PID=PID
 dgv_psv=PSV

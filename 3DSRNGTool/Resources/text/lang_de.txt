@@ -51,6 +51,7 @@ dgv_IDframe=Frame
 dgv_item=Item
 dgv_lv=Lv
 dgv_mark=Mark
+dgv_shiny=Shiny
 dgv_nature=Wesen
 dgv_PID=PID
 dgv_psv=PSV

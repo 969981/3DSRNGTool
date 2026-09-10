@@ -51,6 +51,7 @@ dgv_IDframe=Frame
 dgv_item=持ち物
 dgv_lv=Lv
 dgv_mark=Mark
+dgv_shiny=色違い
 dgv_nature=性格
 dgv_PID=性格値
 dgv_psv=PSV

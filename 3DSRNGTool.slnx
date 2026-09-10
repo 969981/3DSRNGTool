@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="3DSRNGTool/3DSRNGTool.csproj" />
+  <Project Path="Tests/3DSRNGTool.Tests.csproj" />
 </Solution>

@@ -52,6 +52,7 @@ dgv_item=Item
 dgv_lv=Lv
 dgv_mark=Mark
 dgv_Misc_Index=Index
+dgv_shiny=Shiny
 dgv_nature=Nature
 dgv_PID=PID
 dgv_psv=PSV

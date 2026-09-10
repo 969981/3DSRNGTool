@@ -51,6 +51,7 @@ dgv_IDframe=Frame
 dgv_item=Objet
 dgv_lv=Niveau
 dgv_mark=Marque
+dgv_shiny=Shiny
 dgv_nature=Nature
 dgv_PID=PID
 dgv_psv=PSV

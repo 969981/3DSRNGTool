@@ -152,6 +152,15 @@ namespace Pk3DSRNGTool
             { "Bloqueo Variocolor", "Forced Shiny" },
             { "必定不闪", "必定闪" },
         };
+        public static readonly string[,] SHINYFILTER_STR =
+        {
+            { "No Shiny", "Star Only", "Square Only", "Star / Square" },
+            { "色違いなし", "星型のみ", "四角型のみ", "星型 / 四角型" },
+            { "Sans Shiny", "Shiny étoilé uniquement", "Shiny carré uniquement", "Shiny étoilé / carré" },
+            { "Nicht schillernd", "Nur Stern", "Nur Quadrat", "Stern / Quadrat" },
+            { "Sin variocolor", "Solo estrella", "Solo cuadrado", "Estrella / cuadrado" },
+            { "不闪光", "仅星闪", "仅方块闪", "星闪 / 方块闪" },
+        };
         public static readonly string[,] EGGACCEPT_STR =
         {
             { "Accept", "Reject" },

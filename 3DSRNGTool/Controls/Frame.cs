@@ -30,6 +30,7 @@ namespace Pk3DSRNGTool
         public int Shift => realtime > -1 ? realtime - standard : 0;
         public byte Blink;
         public string Mark => Blink < 5 ? blinkmarks[Blink] : Blink.ToString();
+        public string Shiny => rt.ShinyDisplay;
         private string _FrameUsed;
         public string FrameUsed { get => _FrameUsed ?? (rt as EggResult)?.FramesUsed.ToString("+#") ?? (rt as Result6)?.FrameUsed.ToString("+00") ?? string.Empty; set => _FrameUsed = value; }
         public int HP => showstats ? rt.Stats[0] : rt.IVs[0];

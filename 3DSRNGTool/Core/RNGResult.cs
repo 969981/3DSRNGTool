@@ -12,5 +12,6 @@
         public bool Shiny;
         public bool SquareShiny;
         public bool Synchronize;
+        public string ShinyDisplay => !Shiny ? string.Empty : SquareShiny ? "◆" : "★";
     }
 }

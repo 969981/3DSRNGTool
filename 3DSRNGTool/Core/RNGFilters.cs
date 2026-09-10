@@ -6,8 +6,7 @@ namespace Pk3DSRNGTool.Core
     {
         public bool[] Nature;
         public bool[] HPType;
-        public bool ShinyOnly;
-        public bool SquareShinyOnly;
+        public ShinyFilterMode ShinyFilter { get; set; }
         public byte Ability;
         public byte Gender;
         public int[] IVup, IVlow, Stats;
@@ -62,6 +61,18 @@ namespace Pk3DSRNGTool.Core
             return Slot[slot];
         }
 
+        private bool CheckShiny(RNGResult result)
+        {
+            return ShinyFilter switch
+            {
+                ShinyFilterMode.NoShiny => !result.Shiny,
+                ShinyFilterMode.StarOnly => result.Shiny && !result.SquareShiny,
+                ShinyFilterMode.SquareOnly => result.Shiny && result.SquareShiny,
+                ShinyFilterMode.StarOrSquare => result.Shiny,
+                _ => false,
+            };
+        }
+
         public bool CheckResult(RNGResult result)
         {
             if (!RNGResult.IsPokemon)
@@ -76,13 +87,8 @@ namespace Pk3DSRNGTool.Core
                  if (Ball != 0 && Ball != egg.Ball || 
                     NatureInheritance != 0 && (egg.BE_InheritParents == true ? 1 : 2) != NatureInheritance)
                     return false;
-            if (ShinyOnly)
-            {
-                if (!result.Shiny)
-                    return false;
-                if (SquareShinyOnly && !result.SquareShiny)
-                    return false;
-            }
+            if (!CheckShiny(result))
+                return false;
             if (BS == null ? !CheckIVs(result) : !CheckStats(result))
                 return false;
             if (!CheckHiddenPower(result))
@@ -113,7 +119,7 @@ namespace Pk3DSRNGTool.Core
             {
                 "Nature = " + string.Join(",", StringItem.naturestr.Where((str,i) => Nature[i])),
                 "HiddenPower = " + string.Join(",", StringItem.hpstr.Where((str,i) => i > 0 && i < 17 && HPType[i - 1])),
-                "ShinyOnly = " + (ShinyOnly ? "T": "F"),
+                "ShinyFilter = " + ShinyFilter,
                 "Ability = " +  Ability.ToString(),
                 "Gender = " +  Gender.ToString(),
                 "IVup = " + string.Join(",", IVup),

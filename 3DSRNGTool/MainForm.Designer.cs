@@ -67,6 +67,7 @@
             this.dgv_Frame = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgv_shift = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgv_mark = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgv_shiny = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgv_adv = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgv_H = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgv_A = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -351,7 +352,6 @@
             this.AlwaysSynced = new System.Windows.Forms.CheckBox();
             this.Fix3v = new System.Windows.Forms.CheckBox();
             this.Filters = new System.Windows.Forms.GroupBox();
-            this.SquareShinyOnly = new System.Windows.Forms.CheckBox();
             this.ShinyRemind = new System.Windows.Forms.CheckBox();
             this.Filter_Lv = new System.Windows.Forms.NumericUpDown();
             this.L_S = new System.Windows.Forms.Label();
@@ -382,7 +382,7 @@
             this.ivmax3 = new System.Windows.Forms.NumericUpDown();
             this.L_IVRange = new System.Windows.Forms.Label();
             this.IgnoreFilters = new System.Windows.Forms.CheckBox();
-            this.ShinyOnly = new System.Windows.Forms.CheckBox();
+            this.ShinyFilter = new System.Windows.Forms.ComboBox();
             this.ParentNature = new System.Windows.Forms.ComboBox();
             this.B_LoadFilter = new System.Windows.Forms.Button();
             this.B_SaveFilter = new System.Windows.Forms.Button();
@@ -637,6 +637,7 @@
             this.dgv_Frame,
             this.dgv_shift,
             this.dgv_mark,
+            this.dgv_shiny,
             this.dgv_adv,
             this.dgv_H,
             this.dgv_A,
@@ -736,7 +737,14 @@
             this.dgv_mark.HeaderText = "眨眼";
             this.dgv_mark.Name = "dgv_mark";
             this.dgv_mark.Width = 40;
-            // 
+            //
+            // dgv_shiny
+            //
+            this.dgv_shiny.DataPropertyName = "Shiny";
+            this.dgv_shiny.HeaderText = "Shiny";
+            this.dgv_shiny.Name = "dgv_shiny";
+            this.dgv_shiny.Width = 50;
+            //
             // dgv_adv
             // 
             this.dgv_adv.DataPropertyName = "FrameUsed";
@@ -4026,7 +4034,6 @@
             // 
             // Filters
             // 
-            this.Filters.Controls.Add(this.SquareShinyOnly);
             this.Filters.Controls.Add(this.ShinyRemind);
             this.Filters.Controls.Add(this.Filter_Lv);
             this.Filters.Controls.Add(this.L_S);
@@ -4037,7 +4044,7 @@
             this.Filters.Controls.Add(this.L_D);
             this.Filters.Controls.Add(this.IVPanel);
             this.Filters.Controls.Add(this.IgnoreFilters);
-            this.Filters.Controls.Add(this.ShinyOnly);
+            this.Filters.Controls.Add(this.ShinyFilter);
             this.Filters.Controls.Add(this.ParentNature);
             this.Filters.Controls.Add(this.B_LoadFilter);
             this.Filters.Controls.Add(this.B_SaveFilter);
@@ -4069,18 +4076,6 @@
             this.Filters.TabIndex = 4;
             this.Filters.TabStop = false;
             this.Filters.Text = "筛选";
-            // 
-            // SquareShinyOnly
-            // 
-            this.SquareShinyOnly.AutoSize = true;
-            this.SquareShinyOnly.Location = new System.Drawing.Point(363, 221);
-            this.SquareShinyOnly.Margin = new System.Windows.Forms.Padding(0);
-            this.SquareShinyOnly.Name = "SquareShinyOnly";
-            this.SquareShinyOnly.Size = new System.Drawing.Size(35, 17);
-            this.SquareShinyOnly.TabIndex = 102;
-            this.SquareShinyOnly.Text = "◆";
-            this.SquareShinyOnly.UseVisualStyleBackColor = true;
-            this.SquareShinyOnly.Visible = false;
             // 
             // ShinyRemind
             // 
@@ -4481,16 +4476,20 @@
             this.IgnoreFilters.Text = "取消筛选";
             this.IgnoreFilters.UseVisualStyleBackColor = true;
             // 
-            // ShinyOnly
-            // 
-            this.ShinyOnly.AutoSize = true;
-            this.ShinyOnly.Location = new System.Drawing.Point(290, 221);
-            this.ShinyOnly.Name = "ShinyOnly";
-            this.ShinyOnly.Size = new System.Drawing.Size(74, 17);
-            this.ShinyOnly.TabIndex = 8;
-            this.ShinyOnly.Text = "仅异色帧";
-            this.ShinyOnly.UseVisualStyleBackColor = true;
-            this.ShinyOnly.CheckedChanged += new System.EventHandler(this.ShinyOnly_CheckedChanged);
+            // ShinyFilter
+            //
+            this.ShinyFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ShinyFilter.FormattingEnabled = true;
+            this.ShinyFilter.Items.AddRange(new object[] {
+            "No Shiny",
+            "Star Only",
+            "Square Only",
+            "Star / Square"});
+            this.ShinyFilter.Location = new System.Drawing.Point(270, 218);
+            this.ShinyFilter.Name = "ShinyFilter";
+            this.ShinyFilter.Size = new System.Drawing.Size(110, 21);
+            this.ShinyFilter.TabIndex = 8;
+            this.ShinyFilter.SelectedIndex = 0;
             // 
             // ParentNature
             // 
@@ -5692,7 +5691,7 @@
         private System.Windows.Forms.NumericUpDown Filter_Lv;
         private System.Windows.Forms.ComboBox Ability;
         private System.Windows.Forms.CheckBox IgnoreFilters;
-        private System.Windows.Forms.CheckBox ShinyOnly;
+        private System.Windows.Forms.ComboBox ShinyFilter;
         private System.Windows.Forms.Label L_gender;
         private System.Windows.Forms.ComboBox Gender;
         private System.Windows.Forms.Label L_Nature;
@@ -5804,7 +5803,6 @@
         private System.Windows.Forms.NumericUpDown DelayMin;
         private System.Windows.Forms.Label L_TRV;
         private Controls.HexMaskedTextBox TRV;
-        private System.Windows.Forms.CheckBox SquareShinyOnly;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgv_IDframe;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgv_gen7ID;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgv_TID;
@@ -5820,6 +5818,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn dgv_Frame;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgv_shift;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgv_mark;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dgv_shiny;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgv_adv;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgv_H;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgv_A;
