@@ -15,4 +15,5 @@ _Avoid_: Regular shiny when distinguishing it from square shiny
 A shiny result with the square-type shiny effect.
 
 **Shiny filter mode**:
-The requested shiny category for result searches: `No Shiny`, `Star Only`, `Square Only`, or `Star / Square`.
+The requested shiny category for result searches: `Any`, `No Shiny`, `Star Only`, `Square Only`, or `Star / Square`.
+The default mode is `Any`.

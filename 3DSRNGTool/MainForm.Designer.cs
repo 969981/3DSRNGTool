@@ -4481,6 +4481,7 @@
             this.ShinyFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ShinyFilter.FormattingEnabled = true;
             this.ShinyFilter.Items.AddRange(new object[] {
+            "Any",
             "No Shiny",
             "Star Only",
             "Square Only",

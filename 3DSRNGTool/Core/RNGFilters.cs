@@ -69,6 +69,7 @@ namespace Pk3DSRNGTool.Core
                 ShinyFilterMode.StarOnly => result.Shiny && !result.SquareShiny,
                 ShinyFilterMode.SquareOnly => result.Shiny && result.SquareShiny,
                 ShinyFilterMode.StarOrSquare => result.Shiny,
+                ShinyFilterMode.Any => true,
                 _ => false,
             };
         }

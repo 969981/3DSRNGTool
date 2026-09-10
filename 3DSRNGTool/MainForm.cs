@@ -386,7 +386,7 @@ namespace Pk3DSRNGTool
                 .Select(i => SHINYFILTER_STR[lindex, i]).ToArray());
             ShinyFilter.SelectedIndex = shinyFilterIndex >= 0 && shinyFilterIndex < SHINYFILTER_STR.GetLength(1)
                 ? shinyFilterIndex
-                : (int)ShinyFilterMode.NoShiny;
+                : (int)ShinyFilterMode.Any;
 
             IVInputer.Translate(IVJUDGE_STR[lindex], STATS_STR);
             Frame.Parents[1] = M_ditto.Text;
@@ -618,7 +618,7 @@ namespace Pk3DSRNGTool
             IVInputer.Reset();
 
             BlinkFOnly.Checked = SafeFOnly.Checked = SpecialOnly.Checked = false;
-            ShinyFilter.SelectedIndex = (int)ShinyFilterMode.NoShiny;
+            ShinyFilter.SelectedIndex = (int)ShinyFilterMode.Any;
             IgnoreFilters.Checked = false;
         }
 

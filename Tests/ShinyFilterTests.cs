@@ -5,7 +5,14 @@ namespace Pk3DSRNGTool.Tests;
 
 public class ShinyFilterTests
 {
+    [Fact]
+    public void Shiny_filter_defaults_to_any()
+    {
+        Assert.Equal(ShinyFilterMode.Any, new RNGFilters().ShinyFilter);
+    }
+
     [Theory]
+    [InlineData(ShinyFilterMode.Any, true, true, true)]
     [InlineData(ShinyFilterMode.NoShiny, true, false, false)]
     [InlineData(ShinyFilterMode.StarOnly, false, true, false)]
     [InlineData(ShinyFilterMode.SquareOnly, false, false, true)]

@@ -154,12 +154,12 @@ namespace Pk3DSRNGTool
         };
         public static readonly string[,] SHINYFILTER_STR =
         {
-            { "No Shiny", "Star Only", "Square Only", "Star / Square" },
-            { "色違いなし", "星型のみ", "四角型のみ", "星型 / 四角型" },
-            { "Sans Shiny", "Shiny étoilé uniquement", "Shiny carré uniquement", "Shiny étoilé / carré" },
-            { "Nicht schillernd", "Nur Stern", "Nur Quadrat", "Stern / Quadrat" },
-            { "Sin variocolor", "Solo estrella", "Solo cuadrado", "Estrella / cuadrado" },
-            { "不闪光", "仅星闪", "仅方块闪", "星闪 / 方块闪" },
+            { "Any", "No Shiny", "Star Only", "Square Only", "Star / Square" },
+            { "任意", "色違いなし", "星型のみ", "四角型のみ", "星型 / 四角型" },
+            { "N'importe", "Sans Shiny", "Shiny étoilé uniquement", "Shiny carré uniquement", "Shiny étoilé / carré" },
+            { "Beliebig", "Nicht schillernd", "Nur Stern", "Nur Quadrat", "Stern / Quadrat" },
+            { "Cualquiera", "Sin variocolor", "Solo estrella", "Solo cuadrado", "Estrella / cuadrado" },
+            { "任意", "不闪光", "仅星闪", "仅方块闪", "星闪 / 方块闪" },
         };
         public static readonly string[,] EGGACCEPT_STR =
         {
