@@ -62,6 +62,7 @@ namespace Pk3DSRNGTool
         public MainForm()
         {
             InitializeComponent();
+            InitializeShinyModeFilter();
         }
 
         #region Form Loading
@@ -319,6 +320,7 @@ namespace Pk3DSRNGTool
             System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo(curlanguage);
             System.Threading.Thread.CurrentThread.CurrentUICulture = System.Threading.Thread.CurrentThread.CurrentCulture;
             this.TranslateInterface(curlanguage); // Translate the UI to language.
+            RefreshShinyModeLabels();
             Properties.Settings.Default.Language = curlanguage;
             Properties.Settings.Default.Save();
             TTT?.Translate();
@@ -447,6 +449,7 @@ namespace Pk3DSRNGTool
         private void TRV_ValueChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.TRV = (byte)TRV.Value;
+            InvalidateConfirmedTRV();
         }
 
         private void ShinyCharm_CheckedChanged(object sender, EventArgs e)
@@ -572,7 +575,9 @@ namespace Pk3DSRNGTool
         }
         private void ShinyOnly_CheckedChanged(object sender, EventArgs e)
         {
-            SquareShinyOnly.Visible = ShinyOnly.Checked;
+            if (!_updatingShinyMode && ShinyModeSelector != null)
+                ShinyModeSelector.SelectedIndex = ShinyOnly.Checked ? (SquareShinyOnly.Checked ? 3 : 4) : 0;
+            SquareShinyOnly.Visible = false;
         }
         private void Reset_Click(object sender, EventArgs e)
         {
@@ -592,6 +597,7 @@ namespace Pk3DSRNGTool
 
             BlinkFOnly.Checked = SafeFOnly.Checked = SpecialOnly.Checked =
             ShinyOnly.Checked = IgnoreFilters.Checked = false;
+            ShinyModeSelector.SelectedIndex = 0;
         }
 
         private void SetAsStarting_Click(object sender, EventArgs e)
@@ -677,6 +683,11 @@ namespace Pk3DSRNGTool
                                 case "ShinyOnly":
                                     ShinyOnly.Checked = value == "T" || value == "True";
                                     break;
+                                case "ShinyMode":
+                                    if (Enum.TryParse(value, true, out ShinyFilterMode shinyMode) &&
+                                        Enum.IsDefined(typeof(ShinyFilterMode), shinyMode))
+                                        ShinyModeSelector.SelectedIndex = (int)shinyMode;
+                                    break;
                                 case "Ability":
                                     tmp = Convert.ToInt32(value);
                                     Ability.SelectedIndex = 0 < tmp && tmp < 4 ? tmp : 0;
@@ -714,6 +725,7 @@ namespace Pk3DSRNGTool
             Gameversion.SelectedIndex = profile.GameVersion;
             TSV.Value = profile.TSV;
             TRV.Value = profile.TRV;
+            InvalidateConfirmedTRV();
             ShinyCharm.Checked = profile.ShinyCharm;
             if (Gen7)
                 Status = profile.Seeds;
@@ -1328,6 +1340,7 @@ namespace Pk3DSRNGTool
             Stats = ByStats.Checked ? Stats : null,
             ShinyOnly = ShinyOnly.Checked,
             SquareShinyOnly = SquareShinyOnly.Checked,
+            ShinyMode = (ShinyFilterMode)ShinyModeSelector.SelectedIndex,
             Skip = IgnoreFilters.Checked,
             PerfectIVValue = (byte)Perfect_IV_Value.Value,
             PerfectIVCount = (byte)PerfectIVs.Value,
