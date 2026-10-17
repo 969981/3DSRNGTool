@@ -47,6 +47,7 @@ namespace Pk3DSRNGTool
                     {
                         rt.Shiny = true;
                         rt.SquareShiny = rt.PRV == TRV;
+                    rt.ShinyTypeKnown = true;
                     }
                     break;
                 }
@@ -54,6 +55,7 @@ namespace Pk3DSRNGTool
                 {
                     rt.Shiny = true;
                     rt.SquareShiny = true;
+                    rt.ShinyTypeKnown = true;
                     rt.PID = (uint)(((((TSV << 4) + TRV) ^ (rt.PID & 0xFFFF)) << 16) + (rt.PID & 0xFFFF));
                 }
             }
