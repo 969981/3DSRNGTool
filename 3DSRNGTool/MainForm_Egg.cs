@@ -302,7 +302,8 @@ namespace Pk3DSRNGTool
 
         private void ConsiderOtherTSV_CheckedChanged(object sender, EventArgs e)
         {
-            if (ConsiderOtherTSV.Checked) ShinyOnly.Checked = true;
+            if (ConsiderOtherTSV.Checked)
+                ShinyModeSelector.SelectedIndex = (int)ShinyFilterMode.AnyShiny;
         }
         #endregion
     }
