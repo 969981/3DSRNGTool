@@ -11,6 +11,9 @@
         public int[] Stats;
         public bool Shiny;
         public bool SquareShiny;
+        // True only for shinies evaluated against an available trainer TRV.
+        // TSV-only secondary-trainer matches cannot be classified as star/square.
+        public bool ShinyTypeKnown;
         public bool Synchronize;
     }
 }
