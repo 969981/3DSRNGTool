@@ -4,6 +4,7 @@ namespace Pk3DSRNGTool
 {
     public class Stationary6 : StationaryRNG
     {
+        private bool HasKnownTrainerTRV = true;
         private static uint getrand => RNGPool.getrand;
         private static uint rand(uint n) => (uint)(getrand * (ulong)n >> 32);
         private static void Advance(int n) => RNGPool.Advance(n);
@@ -47,7 +48,7 @@ namespace Pk3DSRNGTool
                     {
                         rt.Shiny = true;
                         rt.SquareShiny = rt.PRV == TRV;
-                    rt.ShinyTypeKnown = true;
+                    rt.ShinyTypeKnown = HasKnownTrainerTRV;
                     }
                     break;
                 }
@@ -55,7 +56,7 @@ namespace Pk3DSRNGTool
                 {
                     rt.Shiny = true;
                     rt.SquareShiny = true;
-                    rt.ShinyTypeKnown = true;
+                    rt.ShinyTypeKnown = HasKnownTrainerTRV;
                     rt.PID = (uint)(((((TSV << 4) + TRV) ^ (rt.PID & 0xFFFF)) << 16) + (rt.PID & 0xFFFF));
                 }
             }
@@ -122,7 +123,10 @@ namespace Pk3DSRNGTool
             if (pm6.Bank && pm6.NumOfPkm == 20 && (pm6.Species == 151 || pm6.Species == 251)) // Transporter Mystery
                 PerfectIVCount = 5;
             if (pm6.OTTSV != null)
+            {
                 TSV = (int)pm6.OTTSV;
+                HasKnownTrainerTRV = false;
+            }
         }
     }
 }
