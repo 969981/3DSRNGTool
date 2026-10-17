@@ -184,13 +184,14 @@ namespace Pk3DSRNGTool
                         {
                             rt.Shiny = true;
                             rt.SquareShiny = rt.PRV == TRV;
+                    rt.ShinyTypeKnown = true;
                         }
                         break;
                     }
                 }
                 else    // if (IsForcedShiny6)
                 {
-                    rt.Shiny = rt.SquareShiny = true;
+                    rt.Shiny = rt.SquareShiny = rt.ShinyTypeKnown = true;
                     rt.PID = (uint)(((((TSV << 4) + TRV) ^ (rt.PID & 0xFFFF)) << 16) + (rt.PID & 0xFFFF));
                     break;
                 }
