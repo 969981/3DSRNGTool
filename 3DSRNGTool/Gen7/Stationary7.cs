@@ -65,7 +65,8 @@ namespace Pk3DSRNGTool
                     else
                     {
                         rt.Shiny = true;
-                        rt.SquareShiny = Fateful || rt.PRV == TRV;
+                        rt.SquareShiny = rt.PRV == TRV;
+                    rt.ShinyTypeKnown = true;
                     }
                     break;
                 }
@@ -73,6 +74,7 @@ namespace Pk3DSRNGTool
                 {
                     rt.Shiny = true;
                     rt.SquareShiny = true;
+                    rt.ShinyTypeKnown = true;
                     rt.PID = (uint)(((((TSV << 4) + TRV) ^ (rt.PID & 0xFFFF)) << 16) + (rt.PID & 0xFFFF));
                 }
             }
@@ -165,6 +167,7 @@ namespace Pk3DSRNGTool
             var tmp = rt.PSV;
             rt.Shiny = tmp == TSV || ConsiderOtherTSV && OtherTSVs.Contains((int)tmp);
             rt.SquareShiny = tmp == TSV && rt.PRV == TRV;
+            rt.ShinyTypeKnown = rt.Shiny && tmp == TSV;
             return rt;
         }
     }
