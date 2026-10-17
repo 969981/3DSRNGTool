@@ -2,12 +2,22 @@
 
 namespace Pk3DSRNGTool.Core
 {
+    public enum ShinyFilterMode : byte
+    {
+        Any = 0,
+        NonShiny = 1,
+        StarShiny = 2,
+        SquareShiny = 3,
+        AnyShiny = 4,
+    }
+
     public class RNGFilters
     {
         public bool[] Nature;
         public bool[] HPType;
         public bool ShinyOnly;
         public bool SquareShinyOnly;
+        public ShinyFilterMode ShinyMode;
         public byte Ability;
         public byte Gender;
         public int[] IVup, IVlow, Stats;
@@ -76,12 +86,24 @@ namespace Pk3DSRNGTool.Core
                  if (Ball != 0 && Ball != egg.Ball || 
                     NatureInheritance != 0 && (egg.BE_InheritParents == true ? 1 : 2) != NatureInheritance)
                     return false;
-            if (ShinyOnly)
+            // Continue to read legacy filter files which only contain ShinyOnly.
+            ShinyFilterMode mode = ShinyMode == ShinyFilterMode.Any && ShinyOnly
+                ? (SquareShinyOnly ? ShinyFilterMode.SquareShiny : ShinyFilterMode.AnyShiny)
+                : ShinyMode;
+            switch (mode)
             {
-                if (!result.Shiny)
-                    return false;
-                if (SquareShinyOnly && !result.SquareShiny)
-                    return false;
+                case ShinyFilterMode.NonShiny:
+                    if (result.Shiny) return false;
+                    break;
+                case ShinyFilterMode.StarShiny:
+                    if (!result.Shiny || !result.ShinyTypeKnown || result.SquareShiny) return false;
+                    break;
+                case ShinyFilterMode.SquareShiny:
+                    if (!result.Shiny || !result.ShinyTypeKnown || !result.SquareShiny) return false;
+                    break;
+                case ShinyFilterMode.AnyShiny:
+                    if (!result.Shiny) return false;
+                    break;
             }
             if (BS == null ? !CheckIVs(result) : !CheckStats(result))
                 return false;
@@ -114,6 +136,7 @@ namespace Pk3DSRNGTool.Core
                 "Nature = " + string.Join(",", StringItem.naturestr.Where((str,i) => Nature[i])),
                 "HiddenPower = " + string.Join(",", StringItem.hpstr.Where((str,i) => i > 0 && i < 17 && HPType[i - 1])),
                 "ShinyOnly = " + (ShinyOnly ? "T": "F"),
+                "ShinyMode = " + ShinyMode,
                 "Ability = " +  Ability.ToString(),
                 "Gender = " +  Gender.ToString(),
                 "IVup = " + string.Join(",", IVup),
