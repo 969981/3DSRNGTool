@@ -5,6 +5,7 @@ namespace Pk3DSRNGTool
 {
     public class Stationary7 : StationaryRNG
     {
+        private bool HasKnownTrainerTRV = true;
         private static ulong getrand => RNGPool.getrand64;
         private static void time_elapse(int n) => RNGPool.time_elapse7(n);
         private static void Advance(int n) => RNGPool.Advance(n);
@@ -66,7 +67,7 @@ namespace Pk3DSRNGTool
                     {
                         rt.Shiny = true;
                         rt.SquareShiny = rt.PRV == TRV;
-                    rt.ShinyTypeKnown = true;
+                    rt.ShinyTypeKnown = HasKnownTrainerTRV;
                     }
                     break;
                 }
@@ -74,7 +75,7 @@ namespace Pk3DSRNGTool
                 {
                     rt.Shiny = true;
                     rt.SquareShiny = true;
-                    rt.ShinyTypeKnown = true;
+                    rt.ShinyTypeKnown = HasKnownTrainerTRV;
                     rt.PID = (uint)(((((TSV << 4) + TRV) ^ (rt.PID & 0xFFFF)) << 16) + (rt.PID & 0xFFFF));
                 }
             }
@@ -144,6 +145,7 @@ namespace Pk3DSRNGTool
             if (pm7.OTTSV != null)
             {
                 TSV = (int)pm7.OTTSV;
+                HasKnownTrainerTRV = false;
                 Trade = !pm7.Gift;
                 Fateful = pm7.Gift;
             }
