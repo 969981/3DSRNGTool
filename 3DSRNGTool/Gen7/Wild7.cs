@@ -133,6 +133,7 @@ namespace Pk3DSRNGTool
                     {
                         rt.Shiny = true;
                         rt.SquareShiny = rt.PRV == TRV;
+                    rt.ShinyTypeKnown = true;
                     }
                     break;
                 }
