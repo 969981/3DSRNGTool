@@ -83,6 +83,8 @@ namespace Pk3DSRNGTool
             {
                 egg.PID = (uint)MainRNGPID;
                 egg.Shiny = egg.PSV == TSV;
+                egg.SquareShiny = egg.Shiny && egg.PRV == TRV;
+                egg.ShinyTypeKnown = egg.Shiny;
             }
             else
                 for (int i = PID_Rerollcount; i > 0; i--)
@@ -92,6 +94,7 @@ namespace Pk3DSRNGTool
                     { 
                         egg.Shiny = true;
                         egg.SquareShiny = egg.PRV == TRV;
+                    egg.ShinyTypeKnown = true;
                         return egg; 
                     }
                 }
