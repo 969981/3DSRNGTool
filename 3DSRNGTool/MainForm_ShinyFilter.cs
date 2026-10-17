@@ -31,8 +31,8 @@ namespace Pk3DSRNGTool
             {
                 Name = "ShinyModeSelector",
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Location = new Point(257, 218),
-                Size = new Size(127, 21),
+                Location = new Point(270, 218),
+                Size = new Size(118, 21),
                 TabIndex = ShinyOnly.TabIndex,
                 IntegralHeight = false,
                 MaxDropDownItems = 5
