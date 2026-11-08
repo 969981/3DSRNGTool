@@ -1,0 +1,62 @@
+name: Release Gen 6 Egg RNG Beta
+
+on:
+  push:
+    branches:
+      - feature/advanced-shiny-filters
+    paths:
+      - .github/workflows/release-gen6-egg-beta.yml
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  release:
+    name: Package and publish verified Win x64 binary
+    runs-on: windows-latest
+    steps:
+      - name: Download tested CI Windows build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          gh run download 42459367673 --repo "${{ github.repository }}" --name "3DSRNGTool" --dir "staging/3DSRNGTool"
+          $exe = Get-ChildItem -Path "staging/3DSRNGTool" -Filter "3DSRNGTool.exe" -File -Recurse
+          if (-not $exe) { throw "Expected 3DSRNGTool.exe missing from tested artifact." }
+          Write-Host "Tested binary: $($exe[0].FullName)"
+      - name: Package zip
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Compress-Archive -Path "staging/3DSRNGTool/*" -DestinationPath "dist/3DSRNGTool-win-x64-v1.0.6-egg-shiny-beta.zip" -CompressionLevel Optimal
+          if (!(Test-Path "dist/3DSRNGTool-win-x64-v1.0.6-egg-shiny-beta.zip")) { throw "Release ZIP missing" }
+      - name: Prepare release notes
+        shell: pwsh
+        run: |
+          @'
+          ## 3DSRNGTool 1.0.6 — Gen 6 Egg/Shiny Filters Beta
+
+          **Source:** feature/advanced-shiny-filters at `ea16c98ef099dfe5d54ae7660457ee158e87107b`.
+          **Windows:** x64, .NET 8 Windows Desktop Runtime required.
+
+          - Advanced shiny filters (any, non-shiny, star, square, any shiny).
+          - Preserves master XY/ORAS egg RNG calculations and original Accept/Reject behavior.
+          - Regression-tested with different 64-bit egg Seeds in XY Masuda Method + Shiny Charm mode:
+            current-egg EC/PID changed, and the current egg PID is independent from the top-level main Seed.
+          - CI run #42459367673: build, Gen 6 egg regression tests, and ZIP artifact all successful.
+
+          **Usage:** Extract the zip and start `3DSRNGTool.exe`. For egg Seed A/B, inspect the
+          `Current` row (frame -1), not the independently generated future main-MT frame rows.
+
+          **Test status:** Source-level Windows CI tests passed; manual real-game / WinForms UI
+          and emulator acceptance testing has not yet been performed. This is a pre-release.
+          '@ | Set-Content -Path release-notes.md -Encoding utf8
+      - name: Publish GitHub prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $tag = "v1.0.6-egg-shiny-beta.20261108"
+          $target = "ea16c98ef099dfe5d54ae7660457ee158e87107b"
+          gh release create $tag "dist/3DSRNGTool-win-x64-v1.0.6-egg-shiny-beta.zip" --repo "${{ github.repository }}" --target $target --title "3DSRNGTool 1.0.6 - Egg/Shiny Filters Beta (2026-11-08)" --notes-file "release-notes.md" --prerelease
