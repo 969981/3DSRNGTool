@@ -14,9 +14,12 @@ namespace Pk3DSRNGTool
     {
         private CheckBox CurrentEggSeedOnly;
         private Label CurrentEggPreview;
+        private Button EggSeedModeButton;
+        private bool UseFullEggSeed = true;
 
         private void InitializeGen6CurrentEggPreview()
         {
+            InitializeEggSeedInput();
             CurrentEggSeedOnly = new CheckBox
             {
                 Name = "CurrentEggSeedOnly",
@@ -55,6 +58,48 @@ namespace Pk3DSRNGTool
             DGVToolTip.SetToolTip(CurrentEggPreview, note);
             DGVToolTip.SetToolTip(Key0, note);
             DGVToolTip.SetToolTip(Key1, note);
+        }
+
+        private void InitializeEggSeedInput()
+        {
+            UseFullEggSeed = Properties.Settings.Default.UseFullEggSeed;
+            EggSeedModeButton = new Button { Name = "EggSeedModeButton", Text = UseFullEggSeed ? "完整 Seed 输入" : "分段 Seed 输入", Location = new Point(274, 202), Size = new Size(130, 25), Visible = false };
+            EggSeedModeButton.Click += EggSeedModeButton_Click;
+            Parents_Info.Controls.Add(EggSeedModeButton);
+            ApplyEggSeedInputMode();
+        }
+
+        private void ApplyEggSeedInputMode()
+        {
+            if (St0 == null || Key0 == null) return;
+            bool readOnly = UseFullEggSeed;
+            St0.ReadOnly = St1.ReadOnly = St2.ReadOnly = St3.ReadOnly = readOnly;
+            Key0.ReadOnly = Key1.ReadOnly = readOnly;
+            if (EggSeedModeButton != null) EggSeedModeButton.Text = readOnly ? "完整 Seed 输入" : "分段 Seed 输入";
+        }
+
+        private void EggSeedModeButton_Click(object sender, EventArgs e)
+        {
+            bool gen7 = Gen7;
+            string current = EggSeedCodec.Format(gen7 ? Status : new[] { Key0.Value, Key1.Value, 0u, 0u }, gen7);
+            using (var dialog = new EggSeedInputDialog(gen7, UseFullEggSeed, current))
+            {
+                if (dialog.ShowDialog(this) != DialogResult.OK) return;
+                if (dialog.UseFullSeed)
+                {
+                    if (!EggSeedCodec.TryParse(dialog.SeedText, gen7, out uint[] words))
+                    {
+                        Error("Seed 长度或格式错误：" + EggSeedCodec.GetHexLength(gen7) + " 位十六进制");
+                        return;
+                    }
+                    if (gen7) Status = words;
+                    else { Key1.Value = words[1]; Key0.Value = words[0]; }
+                }
+                UseFullEggSeed = dialog.UseFullSeed;
+                Properties.Settings.Default.UseFullEggSeed = UseFullEggSeed;
+                Properties.Settings.Default.Save();
+                ApplyEggSeedInputMode();
+            }
         }
 
         private void ClearGen6EggResultView()

@@ -862,6 +862,8 @@ namespace Pk3DSRNGTool
             ByIVs.Enabled = ByStats.Enabled = Method < 3;
 
             Gen6EggPanel.Visible = Gen6 && Method == 3;
+            if (EggSeedModeButton != null) EggSeedModeButton.Visible = Method == 3 && (Gen6 || Gen7);
+            ApplyEggSeedInputMode();
             if (CurrentEggSeedOnly != null)
             {
                 CurrentEggSeedOnly.Visible = Gen6 && Method == 3;

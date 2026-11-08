@@ -129,3 +129,32 @@ public class Gen6EggSeedTests
         Assert.Equal(a.Nature, b.Nature);
     }
 }
+
+public class EggSeedCodecTests
+{
+    [Fact]
+    public void Usum_full_seed_maps_to_four_words_in_display_order()
+    {
+        Assert.True(EggSeedCodec.TryParse("F9B3084C16590EE4314DBB771E0139ED", true, out var words));
+        Assert.Equal(new uint[] { 0x1E0139ED, 0x314DBB77, 0x16590EE4, 0xF9B3084C }, words);
+        Assert.Equal("F9B3084C16590EE4314DBB771E0139ED", EggSeedCodec.Format(words, true));
+    }
+
+    [Fact]
+    public void Gen6_full_seed_maps_high_word_to_Key1_and_low_word_to_Key0()
+    {
+        Assert.True(EggSeedCodec.TryParse("F9B3084C16590EE4", false, out var words));
+        Assert.Equal(0x16590EE4u, words[0]);
+        Assert.Equal(0xF9B3084Cu, words[1]);
+        Assert.Equal("F9B3084C16590EE4", EggSeedCodec.Format(words, false));
+    }
+
+    [Theory]
+    [InlineData("F9B3084C16590EE4314DBB771E0139E", true)]
+    [InlineData("F9B3084C16590EE4314DBB771E0139ED00", true)]
+    [InlineData("F9B3084C16590EE", false)]
+    public void Rejects_wrong_length(string seed, bool gen7)
+    {
+        Assert.False(EggSeedCodec.TryParse(seed, gen7, out _));
+    }
+}

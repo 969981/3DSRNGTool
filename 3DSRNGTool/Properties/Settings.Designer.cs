@@ -254,6 +254,14 @@ namespace Pk3DSRNGTool.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UseFullEggSeed {
+            get { return ((bool)(this["UseFullEggSeed"])); }
+            set { this["UseFullEggSeed"] = value; }
+        }
+
         public byte TRV {
             get {
                 return ((byte)(this["TRV"]));
