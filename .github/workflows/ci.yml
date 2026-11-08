@@ -19,6 +19,9 @@ jobs:
       - name: Build 3DSRNGTool
         run: dotnet build --configuration Release --verbosity minimal
 
+      - name: Regression - Gen 6 egg Seed (accept/current vs future frames)
+        run: dotnet run --project tests/Gen6EggSeedRegression/Gen6EggSeedRegression.csproj --configuration Release
+
       - name: Package 3DSRNGTool
         run: |
           mkdir upload\3DSRNGTool
