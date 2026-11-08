@@ -63,6 +63,7 @@ namespace Pk3DSRNGTool
         {
             InitializeComponent();
             InitializeShinyModeFilter();
+            InitializeGen6EggSeedPreview();
         }
 
         #region Form Loading
@@ -440,6 +441,10 @@ namespace Pk3DSRNGTool
         private void Key_ValueChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.Key = (ulong)Key0.Value | ((ulong)Key1.Value << 32);
+            // The two-word Gen 6 egg key predicts the current egg, not the
+            // sequence of keys produced by the separately seeded main MT.
+            if (!Initializing && Gen6 && Method == 3 && OnlyCurrentEggSeed != null)
+                OnlyCurrentEggSeed.Checked = true;
         }
 
         private void TSV_ValueChanged(object sender, EventArgs e)
@@ -468,6 +473,9 @@ namespace Pk3DSRNGTool
         {
             if (Initializing)
                 return;
+            // A changed main MT seed means the user is searching future frames.
+            if (Gen6 && Method == 3 && OnlyCurrentEggSeed != null)
+                OnlyCurrentEggSeed.Checked = false;
             Properties.Settings.Default.Seed = Seed.Value;
             Properties.Settings.Default.Save();
             miscrngtool.UpdateInfo(updateseed: true);
