@@ -1,0 +1,73 @@
+name: Release Codex Egg Seed Beta
+
+on:
+  push:
+    branches:
+      - codex/pkhex-export
+    paths:
+      - .github/workflows/release-codex-egg-seed.yml
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  release:
+    name: Publish tested codex/pkhex-export Windows x64 binary
+    runs-on: windows-latest
+    steps:
+      - name: Download verified Windows build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          gh run download 42460213207 --repo "${{ github.repository }}" --name "3DSRNGTool-codex-pkhex-export" --dir "staging"
+          $exe = Get-ChildItem -Path "staging" -Recurse -Filter "3DSRNGTool.exe" -File
+          if (-not $exe) { throw "Missing tested 3DSRNGTool.exe" }
+
+      - name: Package Windows ZIP
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Compress-Archive -Path "staging/*" -DestinationPath "dist/3DSRNGTool-codex-pkhex-export-win-x64-beta.zip" -CompressionLevel Optimal
+          if (!(Test-Path "dist/3DSRNGTool-codex-pkhex-export-win-x64-beta.zip")) { throw "Missing ZIP" }
+
+      - name: Write release notes
+        shell: pwsh
+        run: |
+          @'
+          ## 3DSRNGTool / codex-pkhex-export — Gen6 egg Seed beta
+
+          **Source branch:** `codex/pkhex-export`
+          **Tested commit:** `187563e5f2e627901947241bb7fc27e65a24b5dd`
+          **Runtime:** Windows x64 + .NET 10 Windows Desktop Runtime.
+
+          ### Fixed
+          - Editing Gen 6 egg Seed `[0]` or `[1]` automatically selects
+            the new **仅计算当前蛋 Seed** mode.
+          - Recalculation shows that current egg (frame `-1`) from the
+            entered 64-bit key and its PID, EC and shiny type.
+          - The original main-MT future-frame search remains available
+            by unchecking that mode.
+          - No changes to the original `Egg6` RNG algorithm or
+            Masuda Method + Shiny Charm PID generation.
+          - Windows CI updated to build explicit net10.0-windows
+            project; resolves the prior MSB1011 failure.
+
+          ### Verification
+          CI run #42460213207: Windows build + 11 xUnit tests all passed
+          (0 failures). Tests cover distinct egg keys and the independence
+          of egg-key-derived PID from the top-level main MT Seed.
+          WinForms UI interaction / live-game acceptance tests have not
+          yet been completed; this is a pre-release.
+
+          **Note:** A previous release made from `feature/advanced-shiny-filters`
+          is **not** this build. Use this artifact for `codex/pkhex-export`.
+          '@ | Set-Content -Path release-notes.md -Encoding utf8
+
+      - name: Publish prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          gh release create "v1.0.6-codex-egg-seed-beta.20261108" "dist/3DSRNGTool-codex-pkhex-export-win-x64-beta.zip" --repo "${{ github.repository }}" --target "187563e5f2e627901947241bb7fc27e65a24b5dd" --title "3DSRNGTool codex/pkhex-export - Egg Seed Beta (2026-11-08)" --notes-file "release-notes.md" --prerelease
