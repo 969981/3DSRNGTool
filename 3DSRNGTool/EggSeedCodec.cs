@@ -11,7 +11,9 @@ namespace Pk3DSRNGTool
         {
             words = null;
             if (input == null) return false;
-            string value = new string(input.Where(Uri.IsHexDigit).ToArray()).ToUpperInvariant();
+            string value = input.Trim();
+            if (value.Any(ch => !Uri.IsHexDigit(ch))) return false;
+            value = value.ToUpperInvariant();
             int expected = GetHexLength(gen7);
             if (value.Length != expected) return false;
             int count = gen7 ? 4 : 2;
