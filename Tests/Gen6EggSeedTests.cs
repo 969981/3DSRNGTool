@@ -56,6 +56,17 @@ public class Gen6EggSeedTests
     }
 
     [Fact]
+    public void Screenshot_egg_key_is_used_as_high_low_words_and_changes_with_key0()
+    {
+        var original = Generate(0xF5D266F8, 0xFECED4DB, 0);
+        var edited = Generate(0xF5D266F9, 0xFECED4DB, 0);
+        Assert.Equal(0xFECED4DBF5D266F8UL, original.EggSeed);
+        Assert.Equal(0xFECED4DBF5D266F9UL, edited.EggSeed);
+        Assert.NotEqual(original.EC, edited.EC);
+        Assert.NotEqual(original.PID, edited.PID);
+    }
+
+    [Fact]
     public void Current_egg_PID_is_independent_of_main_MT_seed_in_MM_plus_charm_mode()
     {
         var a = Generate(0x22222222, 0x11111111, 0);

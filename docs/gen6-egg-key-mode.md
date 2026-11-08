@@ -46,3 +46,15 @@ The CI builds **.NET 10**, explicitly identifies the csproj to avoid
 MSB1011 from the sibling sln and slnx, and runs xUnit regression tests.
 UI interactive testing against the actual exe still needs a separate
 Windows UI test; automated RNG tests do not prove that GUI input works.
+
+## UI result invalidation and packaging
+
+After a Gen6 egg-key edit, the UI now discards the previous result grid rather
+than leaving unrelated main-MT hits visible. The compact checkbox beside the
+seed is the explicit **current egg** versus **future main-MT search** switch.
+A fresh calculation in current-egg mode shows only frame `-1`; future-frame
+results will not be misrepresented as derived from the edited key.
+
+The release workflow must build and test the actual branch commit on each push.
+Do **not** download a hard-coded older CI run's artifact and publish it under
+the latest branch name. Each beta release is identified by its source SHA.

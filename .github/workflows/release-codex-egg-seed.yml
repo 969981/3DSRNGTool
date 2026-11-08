@@ -4,70 +4,62 @@ on:
   push:
     branches:
       - codex/pkhex-export
-    paths:
-      - .github/workflows/release-codex-egg-seed.yml
+  workflow_dispatch:
 
 permissions:
-  actions: read
   contents: write
 
 jobs:
   release:
-    name: Publish tested codex/pkhex-export Windows x64 binary
+    name: Build, test and publish exact source commit
     runs-on: windows-latest
     steps:
-      - name: Download verified Windows build
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: pwsh
-        run: |
-          gh run download 42460213207 --repo "${{ github.repository }}" --name "3DSRNGTool-codex-pkhex-export" --dir "staging"
-          $exe = Get-ChildItem -Path "staging" -Recurse -Filter "3DSRNGTool.exe" -File
-          if (-not $exe) { throw "Missing tested 3DSRNGTool.exe" }
+      - name: Checkout exact branch commit
+        uses: actions/checkout@v4
 
-      - name: Package Windows ZIP
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build Windows x64 application
+        shell: pwsh
+        run: dotnet build 3DSRNGTool/3DSRNGTool.csproj --configuration Release --verbosity minimal
+
+      - name: Run RNG regression tests
+        shell: pwsh
+        run: dotnet test Tests/3DSRNGTool.Tests.csproj --configuration Release --verbosity minimal
+
+      - name: Package built application
         shell: pwsh
         run: |
+          $source = "3DSRNGTool/bin/Release/net10.0-windows/win-x64"
+          if (!(Test-Path "$source/3DSRNGTool.exe")) { throw "Missing built EXE" }
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Compress-Archive -Path "staging/*" -DestinationPath "dist/3DSRNGTool-codex-pkhex-export-win-x64-beta.zip" -CompressionLevel Optimal
+          Compress-Archive -Path "$source/*" -DestinationPath "dist/3DSRNGTool-codex-pkhex-export-win-x64-beta.zip" -CompressionLevel Optimal
           if (!(Test-Path "dist/3DSRNGTool-codex-pkhex-export-win-x64-beta.zip")) { throw "Missing ZIP" }
 
       - name: Write release notes
         shell: pwsh
         run: |
           @'
-          ## 3DSRNGTool / codex-pkhex-export — Gen6 egg Seed beta
+          ## Gen6 egg Seed beta (codex/pkhex-export)
 
-          **Source branch:** `codex/pkhex-export`
-          **Tested commit:** `187563e5f2e627901947241bb7fc27e65a24b5dd`
-          **Runtime:** Windows x64 + .NET 10 Windows Desktop Runtime.
+          Source: ${{ github.sha }} (built and tested by this workflow).
+          Requires Windows x64 and .NET 10 Windows Desktop Runtime.
 
-          ### Fixed
-          - Editing Gen 6 egg Seed `[0]` or `[1]` automatically selects
-            the new **仅计算当前蛋 Seed** mode.
-          - Recalculation shows that current egg (frame `-1`) from the
-            entered 64-bit key and its PID, EC and shiny type.
-          - The original main-MT future-frame search remains available
-            by unchecking that mode.
-          - No changes to the original `Egg6` RNG algorithm or
-            Masuda Method + Shiny Charm PID generation.
-          - Windows CI updated to build explicit net10.0-windows
-            project; resolves the prior MSB1011 failure.
-
-          ### Verification
-          CI run #42460213207: Windows build + 11 xUnit tests all passed
-          (0 failures). Tests cover distinct egg keys and the independence
-          of egg-key-derived PID from the top-level main MT Seed.
-          WinForms UI interaction / live-game acceptance tests have not
-          yet been completed; this is a pre-release.
-
-          **Note:** A previous release made from `feature/advanced-shiny-filters`
-          is **not** this build. Use this artifact for `codex/pkhex-export`.
+          - Modifying Gen6 egg Seed [1]/[0] invalidates old search results.
+          - Recalculate in current egg mode to see only -1/Current from the 64-bit egg Key.
+          - Future-frame hits originate from the independent top main MT Seed.
+          - Masuda Method plus Shiny Charm PID remains derived from the egg Key.
+          - RNG regression tests include the exact screenshot's high/low egg Key.
           '@ | Set-Content -Path release-notes.md -Encoding utf8
 
-      - name: Publish prerelease
+      - name: Publish source-specific prerelease
         env:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
         run: |
-          gh release create "v1.0.6-codex-egg-seed-beta.20261108" "dist/3DSRNGTool-codex-pkhex-export-win-x64-beta.zip" --repo "${{ github.repository }}" --target "187563e5f2e627901947241bb7fc27e65a24b5dd" --title "3DSRNGTool codex/pkhex-export - Egg Seed Beta (2026-11-08)" --notes-file "release-notes.md" --prerelease
+          $sha = "${{ github.sha }}"
+          $tag = "v1.0.6-codex-egg-seed-beta.$($sha.Substring(0, 8))"
+          gh release create $tag "dist/3DSRNGTool-codex-pkhex-export-win-x64-beta.zip" --repo "${{ github.repository }}" --target $sha --title "3DSRNGTool egg Seed beta $($sha.Substring(0, 8))" --notes-file "release-notes.md" --prerelease

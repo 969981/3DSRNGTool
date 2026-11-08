@@ -475,7 +475,8 @@ namespace Pk3DSRNGTool
             if (!Initializing && Gen6 && Method == 3 && CurrentEggSeedOnly != null)
             {
                 CurrentEggSeedOnly.Checked = true;
-                CurrentEggPreview.Text = "蛋 Seed 已改变\n点击计算查看当前蛋";
+                ClearGen6EggResultView();
+                CurrentEggPreview.Text = "Seed 已修改\n点击计算当前蛋";
             }
         }
 

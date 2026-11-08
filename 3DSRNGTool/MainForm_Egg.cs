@@ -20,30 +20,47 @@ namespace Pk3DSRNGTool
             CurrentEggSeedOnly = new CheckBox
             {
                 Name = "CurrentEggSeedOnly",
-                Text = "仅计算当前蛋 Seed",
-                Location = new Point(274, 111),
-                AutoSize = true,
+                Text = "仅当前蛋 Seed",
+                Location = new Point(275, 111),
+                Size = new Size(125, 20),
+                AutoSize = false,
                 TabIndex = 97,
                 Visible = false
             };
             CurrentEggPreview = new Label
             {
                 Name = "CurrentEggPreview",
-                Location = new Point(274, 135),
-                Size = new Size(130, 57),
+                Location = new Point(275, 135),
+                Size = new Size(124, 57),
                 Text = "点击计算查看当前蛋",
                 Visible = false
             };
             Parents_Info.Controls.Add(CurrentEggSeedOnly);
             Parents_Info.Controls.Add(CurrentEggPreview);
+            CurrentEggSeedOnly.CheckedChanged += (sender, args) =>
+            {
+                if (Initializing || !Gen6 || Method != 3) return;
+                ClearGen6EggResultView();
+                CurrentEggPreview.Text = CurrentEggSeedOnly.Checked
+                    ? "当前蛋 Key 模式\n点击计算"
+                    : "未来帧搜索模式\n使用顶部主 Seed";
+            };
 
             const string note = "XY/ORAS 孵蛋 Seed 的 [1] 和 [0] 组成当前蛋的 64 位 Key。" +
-                "修改 Key 后自动只算当前蛋；取消勾选则按原版从顶部主 MT Seed 搜索未来帧。" +
-                "异国孵蛋和闪符下，当前蛋 PID 从蛋 Key 计算，独立于顶部主 Seed。";
+                "修改 Key 会清空之前的结果并自动选择当前蛋模式；点击计算仅显示 -1/Current。" +
+                "取消勾选才会从顶部主 MT Seed 搜索未来帧，未来帧不由当前蛋 Key 推进。" +
+                "异国孵蛋和闪符下，当前蛋 PID 来自蛋 Key，与顶部主 Seed 无关。";
             DGVToolTip.SetToolTip(CurrentEggSeedOnly, note);
             DGVToolTip.SetToolTip(CurrentEggPreview, note);
             DGVToolTip.SetToolTip(Key0, note);
             DGVToolTip.SetToolTip(Key1, note);
+        }
+
+        private void ClearGen6EggResultView()
+        {
+            Frames.Clear();
+            DGV.DataSource = null;
+            DGV.Refresh();
         }
 
         private void UpdateGen6CurrentEggPreview(ResultE6 result, bool mainRngPid)
@@ -53,7 +70,7 @@ namespace Pk3DSRNGTool
             string shiny = mainRngPid ? "未知" : result.Shiny
                 ? (result.SquareShiny ? "◆方闪" : "★星闪") : "不闪";
             CurrentEggPreview.Text =
-                "当前蛋 PID: " + pid + "\n" +
+                "PID: " + pid + "\n" +
                 "EC: " + result.EC.ToString("X8") + "\n" +
                 "闪光: " + shiny;
         }
