@@ -51,12 +51,12 @@ internal static class Program
 
     private static (Snapshot current, Snapshot[] future) Simulate(
         uint key0, uint key1, bool accept, bool masuda = false, bool charm = false,
-        bool screenshotParents = false)
+        bool screenshotParents = false, uint mainSeed = 0)
     {
         Egg6 egg = NewEgg(accept, masuda, charm, screenshotParents);
         // Match Search6_Egg(): the same main MT instance supplies buffering
         // and the future-frame refill, independently of the entered egg key.
-        var rng = new MersenneTwister(0u);
+        var rng = new MersenneTwister(mainSeed);
         Invoke("CreateBuffer", rng, 150, true);
         Pool.GetField("Considerdelay", Flags)!.SetValue(null, false);
         Pool.GetField("igenerator", Flags)!.SetValue(null, egg);
@@ -119,9 +119,28 @@ internal static class Program
                 "screenshot settings: changing egg key changes PID");
             Require(screenshotA.future.SequenceEqual(screenshotB.future),
                 "screenshot settings: future main MT frames do not change");
+
+            // Critical distinction for XY MM + Shiny Charm: its CURRENT egg
+            // PID is obtained from the entered per-egg key (not the main MT).
+            var changedMainSeed = Simulate(0x22222222, 0x11111111,
+                accept: true, masuda: true, charm: true,
+                screenshotParents: true, mainSeed: 0xDEADBEEFu);
+            var rejected = Simulate(0x22222222, 0x11111111,
+                accept: false, masuda: true, charm: true,
+                screenshotParents: true);
+            Require(screenshotA.current == changedMainSeed.current,
+                "MM+Charm current egg including PID is independent of top main Seed");
+            Require(!screenshotA.future.SequenceEqual(changedMainSeed.future),
+                "MM+Charm future egg keys still derive from main MT outputs");
+            Require(screenshotA.current == rejected.current,
+                "MM+Charm PID does not switch to main RNG when Accept/Reject is toggled");
+            Console.WriteLine("SCREENSHOT Main MT 0 vs DEADBEEF current identical: " +
+                screenshotA.current.Pid.ToString("X8"));
+            Console.WriteLine("SCREENSHOT Accept vs Reject current identical: " +
+                rejected.current.Pid.ToString("X8"));
             Console.WriteLine("SCREENSHOT A Current: " + screenshotA.current);
             Console.WriteLine("SCREENSHOT B Current: " + screenshotB.current);
-            Console.WriteLine("PASS: actual Egg6 seed-A/B, acceptance, screenshot settings, PID-source, future frames");
+            Console.WriteLine("PASS: actual Egg6 seed-A/B, screenshot settings, Accept/Reject, MM+Charm PID main-seed independence");
             return 0;
         }
         catch (Exception ex)
