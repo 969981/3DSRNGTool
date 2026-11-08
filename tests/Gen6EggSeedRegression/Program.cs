@@ -16,14 +16,15 @@ internal static class Program
     private static T Call<T>(string name, params object[] args) =>
         (T)Pool.GetMethod(name, Flags)!.Invoke(null, args)!;
 
-    private static Egg6 NewEgg(bool accept, bool masuda = false, bool charm = false)
+    private static Egg6 NewEgg(bool accept, bool masuda = false, bool charm = false,
+        bool screenshotParents = false)
     {
         var egg = new Egg6
         {
             MaleIVs = new[] { 31, 31, 31, 31, 31, 31 },
-            FemaleIVs = new[] { 0, 0, 0, 0, 0, 0 },
-            MaleItem = 2,
-            FemaleItem = 0,
+            FemaleIVs = screenshotParents ? new[] { 31, 31, 31, 31, 31, 31 } : new[] { 0, 0, 0, 0, 0, 0 },
+            MaleItem = 2, // Destiny Knot, as in screenshot
+            FemaleItem = screenshotParents ? (byte)1 : (byte)0, // Everstone, as in screenshot
             InheritAbility = 0,
             Gender = 127,
             TSV = 131,
@@ -49,9 +50,10 @@ internal static class Program
     }
 
     private static (Snapshot current, Snapshot[] future) Simulate(
-        uint key0, uint key1, bool accept, bool masuda = false, bool charm = false)
+        uint key0, uint key1, bool accept, bool masuda = false, bool charm = false,
+        bool screenshotParents = false)
     {
-        Egg6 egg = NewEgg(accept, masuda, charm);
+        Egg6 egg = NewEgg(accept, masuda, charm, screenshotParents);
         // Match Search6_Egg(): the same main MT instance supplies buffering
         // and the future-frame refill, independently of the entered egg key.
         var rng = new MersenneTwister(0u);
@@ -104,7 +106,22 @@ internal static class Program
                 "future main MT stream still independent of current egg key");
             Console.WriteLine("A Masuda+Charm: " + c.current);
             Console.WriteLine("B Masuda+Charm: " + d.current);
-            Console.WriteLine("PASS: actual Egg6 seed-A/B, acceptance, PID-source, future frames");
+
+            // Mirror the user's screenshot: 31 IVs on both parents, male
+            // Destiny Knot, female Everstone, MM + Shiny Charm, TSV 131.
+            var screenshotA = Simulate(0x22222222, 0x11111111,
+                accept: true, masuda: true, charm: true, screenshotParents: true);
+            var screenshotB = Simulate(0x44444444, 0x33333333,
+                accept: true, masuda: true, charm: true, screenshotParents: true);
+            Require(screenshotA.current.Ec != screenshotB.current.Ec,
+                "screenshot settings: changing egg key changes EC");
+            Require(screenshotA.current.Pid != screenshotB.current.Pid,
+                "screenshot settings: changing egg key changes PID");
+            Require(screenshotA.future.SequenceEqual(screenshotB.future),
+                "screenshot settings: future main MT frames do not change");
+            Console.WriteLine("SCREENSHOT A Current: " + screenshotA.current);
+            Console.WriteLine("SCREENSHOT B Current: " + screenshotB.current);
+            Console.WriteLine("PASS: actual Egg6 seed-A/B, acceptance, screenshot settings, PID-source, future frames");
             return 0;
         }
         catch (Exception ex)
