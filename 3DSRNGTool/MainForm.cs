@@ -62,6 +62,7 @@ namespace Pk3DSRNGTool
         public MainForm()
         {
             InitializeComponent();
+            InitializeGen6CurrentEggPreview();
         }
 
         #region Form Loading
@@ -469,6 +470,13 @@ namespace Pk3DSRNGTool
         private void Key_ValueChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.Key = (ulong)Key0.Value | ((ulong)Key1.Value << 32);
+            // Editing either half of the current XY/ORAS egg key must not
+            // silently re-run the unrelated main-MT future-frame list.
+            if (!Initializing && Gen6 && Method == 3 && CurrentEggSeedOnly != null)
+            {
+                CurrentEggSeedOnly.Checked = true;
+                CurrentEggPreview.Text = "蛋 Seed 已改变\n点击计算查看当前蛋";
+            }
         }
 
         private void TSV_ValueChanged(object sender, EventArgs e)
@@ -496,6 +504,10 @@ namespace Pk3DSRNGTool
         {
             if (Initializing)
                 return;
+            // Editing the top-level MT seed explicitly selects the original
+            // future-frame calculation, leaving per-egg key logic untouched.
+            if (Gen6 && Method == 3 && CurrentEggSeedOnly != null)
+                CurrentEggSeedOnly.Checked = false;
             Properties.Settings.Default.Seed = Seed.Value;
             Properties.Settings.Default.Save();
             miscrngtool.UpdateInfo(updateseed: true);
@@ -844,6 +856,11 @@ namespace Pk3DSRNGTool
             ByIVs.Enabled = ByStats.Enabled = Method < 3;
 
             Gen6EggPanel.Visible = Gen6 && Method == 3;
+            if (CurrentEggSeedOnly != null)
+            {
+                CurrentEggSeedOnly.Visible = Gen6 && Method == 3;
+                CurrentEggPreview.Visible = Gen6 && Method == 3;
+            }
             NoDex.Visible = Gen7 && Method == 1;
 
             GB_EggSeed.Visible =

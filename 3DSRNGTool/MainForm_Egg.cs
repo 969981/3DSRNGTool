@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 using Pk3DSRNGTool.Core;
 using static Pk3DSRNGTool.FormUtil;
@@ -11,6 +12,52 @@ namespace Pk3DSRNGTool
 {
     public partial class MainForm : Form
     {
+        private CheckBox CurrentEggSeedOnly;
+        private Label CurrentEggPreview;
+
+        private void InitializeGen6CurrentEggPreview()
+        {
+            CurrentEggSeedOnly = new CheckBox
+            {
+                Name = "CurrentEggSeedOnly",
+                Text = "仅计算当前蛋 Seed",
+                Location = new Point(274, 111),
+                AutoSize = true,
+                TabIndex = 97,
+                Visible = false
+            };
+            CurrentEggPreview = new Label
+            {
+                Name = "CurrentEggPreview",
+                Location = new Point(274, 135),
+                Size = new Size(130, 57),
+                Text = "点击计算查看当前蛋",
+                Visible = false
+            };
+            Parents_Info.Controls.Add(CurrentEggSeedOnly);
+            Parents_Info.Controls.Add(CurrentEggPreview);
+
+            const string note = "XY/ORAS 孵蛋 Seed 的 [1] 和 [0] 组成当前蛋的 64 位 Key。" +
+                "修改 Key 后自动只算当前蛋；取消勾选则按原版从顶部主 MT Seed 搜索未来帧。" +
+                "异国孵蛋和闪符下，当前蛋 PID 从蛋 Key 计算，独立于顶部主 Seed。";
+            DGVToolTip.SetToolTip(CurrentEggSeedOnly, note);
+            DGVToolTip.SetToolTip(CurrentEggPreview, note);
+            DGVToolTip.SetToolTip(Key0, note);
+            DGVToolTip.SetToolTip(Key1, note);
+        }
+
+        private void UpdateGen6CurrentEggPreview(ResultE6 result, bool mainRngPid)
+        {
+            if (CurrentEggPreview == null) return;
+            string pid = mainRngPid ? "主RNG决定" : result.PID.ToString("X8");
+            string shiny = mainRngPid ? "未知" : result.Shiny
+                ? (result.SquareShiny ? "◆方闪" : "★星闪") : "不闪";
+            CurrentEggPreview.Text =
+                "当前蛋 PID: " + pid + "\n" +
+                "EC: " + result.EC.ToString("X8") + "\n" +
+                "闪光: " + shiny;
+        }
+
         private void B_EggReset_Click(object sender, EventArgs e)
         {
             IV_Male = new[] { 31, 31, 31, 31, 31, 31 };

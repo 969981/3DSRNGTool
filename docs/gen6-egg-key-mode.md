@@ -1,0 +1,48 @@
+# XY / ORAS current egg Seed display and search mode
+
+## Root cause
+
+`Search6_Egg()` in both master and `codex/pkhex-export` constructs
+`MersenneTwister(Seed.Value)` for a **future-frame search**. It uses the
+user-provided `Key0` and `Key1` only once, for the `Current` egg
+(`FrameNum=-1`). Every later row derives a *new* egg key from the
+separate main MT stream, so changing the current egg's key does not
+change those rows.
+
+In **Masuda Method + Shiny Charm** mode, the PID of the current egg
+*does* come from that egg's key. The top-level main Seed does not
+participate in that PID generation; the user is correct about this.
+
+## UX correction
+
+On the Gen6 egg tab, editing `[0]` or `[1]` automatically checks
+**仅计算当前蛋 Seed**. Clicking **计算** then produces just the current
+unfiltered egg (frame `-1`), and a separate preview of PID, EC,
+and shiny type. This avoids accidentally interpreting the unchanged
+main-MT future-frame list as the result of the edited key.
+
+To recover the master future-frame search, uncheck this box or change
+the top-level main Seed. **Accept / Reject** options and the actual
+`Egg6` generation algorithm remain unmodified.
+
+This does not assume that a current egg key determines the future
+main RNG stream. Predicting later eggs requires the independently
+tracked main RNG state; a single current egg key cannot be treated as
+a documented replacement for it.
+
+## Regression A/B
+
+The Windows test project now checks the production `Egg6` with
+Masuda Method + Shiny Charm and screenshot-style Destiny Knot /
+Everstone settings (TSV 131):
+
+- `[1]=11111111, [0]=22222222` => PID `D8CDD888`, EC `0AD2D21A`.
+- `[1]=33333333, [0]=44444444` => PID `BCE5CFB2`, EC `CAAC136A`.
+- Keeping the egg key fixed while changing the main MT Seed from
+  `00000000` to `DEADBEEF` must leave the egg's PID, EC and IVs
+  unchanged.
+
+The CI builds **.NET 10**, explicitly identifies the csproj to avoid
+MSB1011 from the sibling sln and slnx, and runs xUnit regression tests.
+UI interactive testing against the actual exe still needs a separate
+Windows UI test; automated RNG tests do not prove that GUI input works.

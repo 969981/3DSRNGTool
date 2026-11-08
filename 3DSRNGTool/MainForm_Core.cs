@@ -150,9 +150,12 @@ namespace Pk3DSRNGTool
             {
                 min = (int)TargetFrame.Value - 100; max = (int)TargetFrame.Value + 100;
             }
-            // Advance
-            for (int i = 0; i < min; i++)
-                rng.Next();
+            // The entered [0]/[1] key belongs to the current egg only.
+            // Future egg keys still originate from the separate main-MT stream.
+            bool currentOnly = CurrentEggSeedOnly != null && CurrentEggSeedOnly.Checked;
+            if (!currentOnly)
+                for (int i = 0; i < min; i++)
+                    rng.Next();
             // Prepare
             getsetting(rng);
 
@@ -164,6 +167,12 @@ namespace Pk3DSRNGTool
             if (IG.IsMainRNGEgg) eggnow.PID = 0xFFFFFFFF;
             eggnow.Status = "Current";
             Frames.Add(new Frame(eggnow, frame: -1));
+            UpdateGen6CurrentEggPreview(eggnow, IG.IsMainRNGEgg);
+
+            // When using the current key, return its unfiltered frame -1
+            // rather than display the same unrelated main-MT future results.
+            if (currentOnly)
+                return;
 
             // Start
             for (int i = min; i <= max; i++, RNGPool.AddNext(rng))
