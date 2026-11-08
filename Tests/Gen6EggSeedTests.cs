@@ -66,7 +66,8 @@ public class Gen6EggSeedTests
             for (int i = 0; i < count; i++)
             {
                 var next = (ResultE6)pool.GetMethod("Generate6", flags)!.Invoke(null, null)!;
-                results.Add((next.EggSeed, next.PID, next.EC));
+                Assert.True(next.EggSeed.HasValue);
+                results.Add((next.EggSeed.Value, next.PID, next.EC));
                 pool.GetMethod("AddNext", flags)!.Invoke(null, new object[] { rng, true });
             }
             return results.ToArray();
