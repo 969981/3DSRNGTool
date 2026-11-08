@@ -20,7 +20,7 @@ namespace Pk3DSRNGTool
             CurrentEggSeedOnly = new CheckBox
             {
                 Name = "CurrentEggSeedOnly",
-                Text = "仅当前蛋 Seed",
+                Text = "仅查看当前蛋",
                 Location = new Point(275, 111),
                 Size = new Size(125, 20),
                 AutoSize = false,
@@ -32,7 +32,7 @@ namespace Pk3DSRNGTool
                 Name = "CurrentEggPreview",
                 Location = new Point(275, 135),
                 Size = new Size(124, 57),
-                Text = "点击计算查看当前蛋",
+                Text = "当前蛋: 蛋 Seed\n后续: 主 Seed\n点击计算",
                 Visible = false
             };
             Parents_Info.Controls.Add(CurrentEggSeedOnly);
@@ -46,10 +46,11 @@ namespace Pk3DSRNGTool
                     : "未来帧搜索模式\n使用顶部主 Seed";
             };
 
-            const string note = "XY/ORAS 孵蛋 Seed 的 [1] 和 [0] 组成当前蛋的 64 位 Key。" +
-                "修改 Key 会清空之前的结果并自动选择当前蛋模式；点击计算仅显示 -1/Current。" +
-                "取消勾选才会从顶部主 MT Seed 搜索未来帧，未来帧不由当前蛋 Key 推进。" +
-                "异国孵蛋和闪符下，当前蛋 PID 来自蛋 Key，与顶部主 Seed 无关。";
+            const string note = "XY/ORAS [1]/[0] 是当前蛋的 64 位 Key，-1/Current 行由它决定。" +
+                "其余帧是领取或拒绝当前蛋时，由顶部主 MT Seed 决定的下一颗蛋候选。" +
+                "修改当前蛋 Key 不会推进主 MT；取消勾选可查看未来帧。" +
+                "修改任一 Seed 会清除旧结果，但保留你选择的查看模式。" +
+                "异国孵蛋和闪符下，当前蛋 PID 来自蛋 Key。";
             DGVToolTip.SetToolTip(CurrentEggSeedOnly, note);
             DGVToolTip.SetToolTip(CurrentEggPreview, note);
             DGVToolTip.SetToolTip(Key0, note);

@@ -58,3 +58,27 @@ results will not be misrepresented as derived from the edited key.
 The release workflow must build and test the actual branch commit on each push.
 Do **not** download a hard-coded older CI run's artifact and publish it under
 the latest branch name. Each beta release is identified by its source SHA.
+
+## 2026-11-08 follow-up: is the next egg derived from the current egg key?
+
+In XY/ORAS the current egg's stored 64-bit Key gives its already-fixed
+properties (and the PID when MM / Shiny Charm are active). Accepting or
+rejecting that egg generates the *next* egg's Key from the main MT stream at
+the time of the interaction. The current Key is not a reversible or complete
+representation of that separate MT state.
+
+- Retail reference: https://www.pokemonrng.com/retail-xy-egg-mmsc/
+- Retail reference: https://www.pokemonrng.com/retail-oras-egg-no-mmsc/
+
+The screenshot's top Seed is `00000000`; its current egg Key is
+`[1]=FECED4DB, [0]=F5D266F8`. The added production-path regression
+asserts that changing the Key but keeping main Seed fixed does **not**
+alter the later frame candidates; changing main Seed **does** change them.
+This guards against producing a plausible but game-incorrect "next key"
+by repeatedly seeding `Egg6` from its previous per-egg key.
+
+The GUI no longer automatically checks **仅查看当前蛋** after a Key edit.
+The chosen view is preserved and the old rows are invalidated. By default
+recalculation shows current row and future main-MT candidates together,
+with tooltip text showing the distinct data sources. Current-only view is
+still available by explicit checkbox selection.

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Collections.Generic;
 using Pk3DSRNGTool;
 using Pk3DSRNGTool.RNG;
 using Xunit;
@@ -18,9 +19,8 @@ public class Gen6EggSeedTests
         method.Invoke(null, new object[] { new MersenneTwister(mainSeed), 150, true });
     }
 
-    private static ResultE6 Generate(uint key0, uint key1, uint mainSeed)
+    private static Egg6 CreateEgg()
     {
-        InitBuffer(mainSeed);
         var egg = new Egg6
         {
             MaleIVs = Enumerable.Repeat(31, 6).ToArray(),
@@ -37,7 +37,57 @@ public class Gen6EggSeedTests
             OtherTSVs = Array.Empty<int>()
         };
         egg.MarkItem();
-        return (ResultE6)egg.Generate(null, new uint[] { key0, key1 });
+        return egg;
+    }
+
+    private static ResultE6 Generate(uint key0, uint key1, uint mainSeed)
+    {
+        InitBuffer(mainSeed);
+        return (ResultE6)CreateEgg().Generate(null, new uint[] { key0, key1 });
+    }
+
+    // Exercises production RNGPool.Generate6 / Egg6.Generate rather than
+    // an invented "next egg" function that advances the current key.
+    private static (ulong Key, uint PID, uint EC)[] FutureEggs(
+        uint mainSeed, uint key0, uint key1, int firstFrame = 418, int count = 4)
+    {
+        var rng = new MersenneTwister(mainSeed);
+        for (int i = 0; i < firstFrame; i++) rng.Next();
+        var pool = typeof(Egg6).Assembly.GetType("Pk3DSRNGTool.Core.RNGPool", true)!;
+        const BindingFlags flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+        var egg = CreateEgg();
+        pool.GetField("igenerator", flags)!.SetValue(null, egg);
+        pool.GetField("Considerdelay", flags)!.SetValue(null, false);
+        pool.GetMethod("CreateBuffer", flags)!.Invoke(null, new object[] { rng, 150, true });
+        var results = new List<(ulong Key, uint PID, uint EC)>();
+        try
+        {
+            _ = egg.Generate(null, new uint[] { key0, key1 });
+            for (int i = 0; i < count; i++)
+            {
+                var next = (ResultE6)pool.GetMethod("Generate6", flags)!.Invoke(null, null)!;
+                results.Add((next.EggSeed, next.PID, next.EC));
+                pool.GetMethod("AddNext", flags)!.Invoke(null, new object[] { rng, true });
+            }
+            return results.ToArray();
+        }
+        finally
+        {
+            pool.GetMethod("Clear", flags)!.Invoke(null, null);
+        }
+    }
+
+    [Fact]
+    public void Screenshot_case_future_eggs_follow_main_MT_not_current_egg_key()
+    {
+        // XY/ORAS: current egg Seed determines -1, future eggs use the
+        // independent main MT stream at the chosen accept/reject frame.
+        var a = FutureEggs(0, 0xF5D266F8, 0xFECED4DB);
+        var b = FutureEggs(0, 0x44444444, 0x33333333);
+        Assert.Equal(a, b);
+        var c = FutureEggs(0xDEADBEEF, 0xF5D266F8, 0xFECED4DB);
+        Assert.NotEqual(a[0].Key, c[0].Key);
+        Assert.NotEqual(a[0].EC, c[0].EC);
     }
 
     [Fact]

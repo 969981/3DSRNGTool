@@ -474,9 +474,10 @@ namespace Pk3DSRNGTool
             // silently re-run the unrelated main-MT future-frame list.
             if (!Initializing && Gen6 && Method == 3 && CurrentEggSeedOnly != null)
             {
-                CurrentEggSeedOnly.Checked = true;
+                // Keep the selected view (current-only or current + main-MT future).
+                // Only the -1 row is affected by the edited 64-bit current egg key.
                 ClearGen6EggResultView();
-                CurrentEggPreview.Text = "Seed 已修改\n点击计算当前蛋";
+                CurrentEggPreview.Text = "当前蛋 Seed 已修改\n后续蛋来自主 Seed\n点击计算刷新";
             }
         }
 
@@ -508,7 +509,11 @@ namespace Pk3DSRNGTool
             // Editing the top-level MT seed explicitly selects the original
             // future-frame calculation, leaving per-egg key logic untouched.
             if (Gen6 && Method == 3 && CurrentEggSeedOnly != null)
+            {
                 CurrentEggSeedOnly.Checked = false;
+                ClearGen6EggResultView();
+                CurrentEggPreview.Text = "主 Seed 已修改\n未来帧随之变化\n点击计算刷新";
+            }
             Properties.Settings.Default.Seed = Seed.Value;
             Properties.Settings.Default.Save();
             miscrngtool.UpdateInfo(updateseed: true);
