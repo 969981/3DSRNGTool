@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Windows.Forms;
 using static Pk3DSRNGTool.FormUtil;
 using static Pk3DSRNGTool.StringItem;
@@ -11,34 +10,6 @@ namespace Pk3DSRNGTool
 {
     public partial class MainForm : Form
     {
-        private CheckBox OnlyCurrentEggSeed;
-
-        private void InitializeGen6EggSeedPreview()
-        {
-            // Keep the historical future-frame search as the normal/default mode.
-            // Editing either egg key explicitly switches to this single-egg mode.
-            OnlyCurrentEggSeed = new CheckBox
-            {
-                Name = "OnlyCurrentEggSeed",
-                Text = "只验当前蛋",
-                AutoSize = true,
-                Location = new Point(9, 90),
-                TabIndex = 96,
-                Checked = false
-            };
-            GB_EggSeed.Text = "当前蛋 Seed";
-            GB_EggSeed.Size = new Size(127, 129);
-            GB_EggSeed.Controls.Add(OnlyCurrentEggSeed);
-
-            const string hint = "XY/ORAS: [1] 与 [0] 组成当前蛋的 64 位 Seed。" +
-                "编辑任一数值后自动选中“只验当前蛋”；计算显示当前蛋（帧 -1）。" +
-                "未来蛋的帧搜索必须使用上方独立的主 MT Seed，不能从当前蛋的两个数值直接推算。";
-            DGVToolTip.SetToolTip(GB_EggSeed, hint);
-            DGVToolTip.SetToolTip(Key1, hint);
-            DGVToolTip.SetToolTip(Key0, hint);
-            DGVToolTip.SetToolTip(OnlyCurrentEggSeed, hint);
-        }
-
         private void B_EggReset_Click(object sender, EventArgs e)
         {
             IV_Male = new[] { 31, 31, 31, 31, 31, 31 };

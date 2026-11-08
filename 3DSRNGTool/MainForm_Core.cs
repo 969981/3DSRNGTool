@@ -150,14 +150,9 @@ namespace Pk3DSRNGTool
             {
                 min = (int)TargetFrame.Value - 100; max = (int)TargetFrame.Value + 100;
             }
-            // A Gen 6 egg key is only sufficient to regenerate that egg.
-            // It does not determine the main MT stream used for future eggs.
-            bool currentEggOnly = OnlyCurrentEggSeed != null && OnlyCurrentEggSeed.Checked;
-            if (!currentEggOnly)
-            {
-                for (int i = 0; i < min; i++)
-                    rng.Next();
-            }
+            // Advance
+            for (int i = 0; i < min; i++)
+                rng.Next();
             // Prepare
             getsetting(rng);
 
@@ -169,12 +164,6 @@ namespace Pk3DSRNGTool
             if (IG.IsMainRNGEgg) eggnow.PID = 0xFFFFFFFF;
             eggnow.Status = "Current";
             Frames.Add(new Frame(eggnow, frame: -1));
-
-            // Changing [1]/[0] must display the newly computed egg instead of
-            // returning the same main MT search results over and over.
-            // Do not synthesize future keys by advancing the egg's local MT.
-            if (currentEggOnly)
-                return;
 
             // Start
             for (int i = min; i <= max; i++, RNGPool.AddNext(rng))
